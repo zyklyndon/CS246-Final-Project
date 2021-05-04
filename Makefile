@@ -1,14 +1,30 @@
-CXX=g++
-CXXFLAGS=-std=c++14 -Wextra -Wpedantic -Wall -MMD -g -Werror=vla
-OBJECTS= floor.o cell.o character.o normal.o troll.o vampire.o drow.o goblin.o enemy.o human.o dragon.o elf.o merchant.o orcs.o halfling.o dwarf.o potion.o RH.o BA.o BD.o PH.o WA.o WD.o treasure.o small.o midgold.o mhoard.o dhoard.o main.o xman.o superman.o
-DEPENDS=${OBJECTS:.o=.d}
-EXEC=cc3k
+CXX := g++
 
-${EXEC}: ${OBJECTS}
-	${CXX} ${CXXFLAGS} ${OBJECTS} -o ${EXEC}
+SRC_DIR := src
+OBJ_DIR := obj
+BIN_DIR := build
 
--include ${DEPENDS}
+EXE := $(BIN_DIR)/cc3k
+SRC := $(wildcard $(SRC_DIR)/*.cc)
+OBJ := $(SRC:$(SRC_DIR)/%.cc=$(OBJ_DIR)/%.o)
 
-clean: 
-	rm ${OBJECTS} ${DEPENDS} ${EXEC}
-.PHONY: clean
+CPPFLAGS := -std=c++14 -Wextra -Wpedantic -Wall -MMD -g -Werror=vla -Iinclude
+CFLAGS   := -Wall
+
+.PHONY: all clean
+
+all: $(EXE)
+
+$(EXE): $(OBJ) | $(BIN_DIR)
+	$(CXX) $^ -o $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc | $(OBJ_DIR)
+	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR) $(OBJ_DIR):
+	mkdir -p $@
+
+clean:
+	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
+
+-include $(OBJ:.o=.d)
